@@ -1,0 +1,9 @@
+// Placeholder screens - implement based on requirements
+export { default as CounsellorListScreen } from './CounsellorListScreen';
+export { default as BookAppointmentScreen } from './BookAppointmentScreen';
+export { default as AppointmentsScreen } from './AppointmentsScreen';
+export { default as JournalListScreen } from './JournalListScreen';
+export { default as JournalEditorScreen } from './JournalEditorScreen';
+export { default as MoodTrackerScreen } from './MoodTrackerScreen';
+export { default as SessionHistoryScreen } from './SessionHistoryScreen';
+export { default as ProfileScreen } from './ProfileScreen';

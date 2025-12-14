@@ -6,10 +6,13 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Checkbox } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { login, clearError } from '../../redux/slices/authSlice';
 import { spacing, theme } from '../../constants/theme';
 
@@ -20,6 +23,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [errors, setErrors] = useState({});
 
   const validate = () => {
@@ -35,6 +39,10 @@ const LoginScreen = ({ navigation }) => {
       newErrors.password = 'Password is required';
     } else if (password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    if (!acceptedPrivacy) {
+      newErrors.privacy = 'You must accept the Privacy Policy and Terms';
     }
 
     setErrors(newErrors);
@@ -66,6 +74,17 @@ const LoginScreen = ({ navigation }) => {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
+            {/* Dual Logos */}
+            <View style={styles.logosContainer}>
+              <View style={styles.logoCircle}>
+                <Icon name="brain" size={50} color={theme.colors.primary} />
+              </View>
+              <View style={styles.logoSpacer} />
+              <View style={styles.logoCircle}>
+                <Icon name="school" size={50} color={theme.colors.secondary} />
+              </View>
+            </View>
+
             <Text style={styles.title}>Welcome to MindSpace</Text>
             <Text style={styles.subtitle}>Your safe space for mental wellness</Text>
 
@@ -108,11 +127,37 @@ const LoginScreen = ({ navigation }) => {
               </HelperText>
             )}
 
+            {/* Privacy Policy and Terms Acceptance */}
+            <View style={styles.privacyContainer}>
+              <Checkbox
+                status={acceptedPrivacy ? 'checked' : 'unchecked'}
+                onPress={() => setAcceptedPrivacy(!acceptedPrivacy)}
+                color={theme.colors.primary}
+              />
+              <View style={styles.privacyTextContainer}>
+                <Text style={styles.privacyText}>
+                  I accept the{' '}
+                  <Text style={styles.privacyLink} onPress={() => Alert.alert('Privacy Policy', 'Your data is anonymized and encrypted. We never share your personal information.')}>
+                    Privacy Policy
+                  </Text>
+                  {' '}and{' '}
+                  <Text style={styles.privacyLink} onPress={() => Alert.alert('Terms & Conditions', 'By using MindSpace, you agree to maintain confidentiality and use the platform responsibly.')}>
+                    Terms & Conditions
+                  </Text>
+                </Text>
+              </View>
+            </View>
+            {errors.privacy && (
+              <HelperText type="error" visible={true} style={styles.errorText}>
+                {errors.privacy}
+              </HelperText>
+            )}
+
             <Button
               mode="contained"
               onPress={handleLogin}
               loading={isLoading}
-              disabled={isLoading}
+              disabled={isLoading || !acceptedPrivacy}
               style={styles.button}
             >
               Login
@@ -147,6 +192,29 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
   },
+  logosContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+    marginTop: spacing.lg,
+  },
+  logoCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: theme.colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  logoSpacer: {
+    width: 8,
+  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
@@ -162,6 +230,26 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: spacing.xs,
+  },
+  privacyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  privacyTextContainer: {
+    flex: 1,
+    marginLeft: spacing.xs,
+  },
+  privacyText: {
+    fontSize: 13,
+    color: theme.colors.text,
+    lineHeight: 20,
+  },
+  privacyLink: {
+    color: theme.colors.primary,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   button: {
     marginTop: spacing.md,

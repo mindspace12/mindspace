@@ -34,6 +34,8 @@ const AppointmentsScreen = ({ navigation }) => {
           onPress: async () => {
             try {
               await dispatch(cancelAppointment(appointmentId)).unwrap();
+              // Refresh the appointments list immediately
+              await dispatch(fetchMyAppointments()).unwrap();
               Alert.alert('Success', 'Appointment cancelled successfully');
             } catch (error) {
               Alert.alert('Error', error || 'Failed to cancel appointment');

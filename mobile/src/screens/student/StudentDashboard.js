@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Text, Button, Avatar, Chip } from 'react-native-paper';
@@ -21,6 +22,15 @@ const StudentDashboard = ({ navigation }) => {
   const { appointments } = useSelector((state) => state.appointments);
   const { moods } = useSelector((state) => state.moods);
   const [refreshing, setRefreshing] = React.useState(false);
+  
+  // Game-like animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const action1Scale = useRef(new Animated.Value(0)).current;
+  const action2Scale = useRef(new Animated.Value(0)).current;
+  const action3Scale = useRef(new Animated.Value(0)).current;
+  const action4Scale = useRef(new Animated.Value(0)).current;
+  const cardBounce = useRef(new Animated.Value(0)).current;
 
   const upcomingAppointments = appointments.filter(
     (apt) => apt.status === 'scheduled' && new Date(apt.appointmentDate) > new Date()
@@ -41,17 +51,70 @@ const StudentDashboard = ({ navigation }) => {
 
   useEffect(() => {
     onRefresh();
+    
+    // Sequential game-like animations
+    Animated.sequence([
+      // Header fade and slide
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          tension: 50,
+          friction: 7,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Quick action cards bounce in one by one
+      Animated.stagger(100, [
+        Animated.spring(action1Scale, {
+          toValue: 1,
+          tension: 80,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+        Animated.spring(action2Scale, {
+          toValue: 1,
+          tension: 80,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+        Animated.spring(action3Scale, {
+          toValue: 1,
+          tension: 80,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+        Animated.spring(action4Scale, {
+          toValue: 1,
+          tension: 80,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Cards bounce
+      Animated.spring(cardBounce, {
+        toValue: 1,
+        tension: 60,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView
-        style={styles.container}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.header}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+        <ScrollView
+          style={styles.container}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <View style={styles.header}>
           <Text style={styles.greeting}>Hello,</Text>
           <Text style={styles.username}>{user?.anonymousUsername || user?.name || 'Student'}</Text>
           <View style={styles.privacyBadge}>
@@ -61,76 +124,103 @@ const StudentDashboard = ({ navigation }) => {
           <Text style={styles.subtitle}>How are you feeling today?</Text>
         </View>
 
-        {/* Quick Actions */}
+        {/* Quick Actions with game-like animations */}
         <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('CounsellorList')}
-          >
-            <Icon name="calendar-plus" size={32} color={theme.colors.primary} />
-            <Text style={styles.actionText}>Book Session</Text>
-          </TouchableOpacity>
+          <Animated.View style={[styles.actionCardWrapper, { transform: [{ scale: action1Scale }] }]}>
+            <TouchableOpacity
+              style={[styles.actionCard, { backgroundColor: theme.colors.primary + '15' }]}
+              onPress={() => navigation.navigate('CounsellorList')}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: theme.colors.primary }]}>
+                <Icon name="calendar-plus" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>Book Session</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Journal', { screen: 'JournalEditor' })}
-          >
-            <Icon name="book-edit" size={32} color={theme.colors.secondary} />
-            <Text style={styles.actionText}>Write Journal</Text>
-          </TouchableOpacity>
+          <Animated.View style={[styles.actionCardWrapper, { transform: [{ scale: action2Scale }] }]}>
+            <TouchableOpacity
+              style={[styles.actionCard, { backgroundColor: theme.colors.secondary + '15' }]}
+              onPress={() => navigation.navigate('Journal', { screen: 'JournalEditor' })}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: theme.colors.secondary }]}>
+                <Icon name="book-edit" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>Write Journal</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('Mood')}
-          >
-            <Icon name="emoticon-happy" size={32} color={theme.colors.success} />
-            <Text style={styles.actionText}>Log Mood</Text>
-          </TouchableOpacity>
+          <Animated.View style={[styles.actionCardWrapper, { transform: [{ scale: action3Scale }] }]}>
+            <TouchableOpacity
+              style={[styles.actionCard, { backgroundColor: theme.colors.success + '15' }]}
+              onPress={() => navigation.navigate('Mood')}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: theme.colors.success }]}>
+                <Icon name="emoticon-happy" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>Log Mood</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('QRCode')}
-          >
-            <Icon name="qrcode" size={32} color={theme.colors.info} />
-            <Text style={styles.actionText}>My QR Code</Text>
-          </TouchableOpacity>
+          <Animated.View style={[styles.actionCardWrapper, { transform: [{ scale: action4Scale }] }]}>
+            <TouchableOpacity
+              style={[styles.actionCard, { backgroundColor: theme.colors.info + '15' }]}
+              onPress={() => navigation.navigate('QRCode')}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: theme.colors.info }]}>
+                <Icon name="qrcode" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>My QR Code</Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
 
         {/* Today's Mood */}
-        <Card style={styles.card}>
+        <Card style={[styles.card, styles.todayMoodCard]}>
           <Card.Title
             title="Today's Mood"
-            left={(props) => <Icon name="emoticon" {...props} size={24} />}
+            titleStyle={styles.todayMoodTitle}
+            left={(props) => <Icon name="emoticon" {...props} size={28} color={theme.colors.primary} />}
           />
           <Card.Content>
             {todayMood ? (
               <View style={styles.moodDisplay}>
-                <Text style={styles.moodEmoji}>{MOOD_EMOJIS[todayMood.moodLevel]}</Text>
-                <Text style={styles.moodText}>Logged today</Text>
+                <View style={styles.moodEmojiCircle}>
+                  <Text style={styles.moodEmoji}>{MOOD_EMOJIS[todayMood.mood] || '😐'}</Text>
+                </View>
+                <View style={styles.moodInfo}>
+                  <Text style={styles.moodText}>Logged today at {new Date(todayMood.date).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</Text>
+                  <Text style={styles.moodNote}>{todayMood.note ? `"${todayMood.note}"` : 'No note added'}</Text>
+                </View>
               </View>
             ) : (
-              <Button
-                mode="outlined"
-                onPress={() => navigation.navigate('Mood')}
-                icon="plus"
-              >
-                Log Your Mood
-              </Button>
+              <View style={styles.noMoodContainer}>
+                <Text style={styles.noMoodText}>You haven't logged your mood today</Text>
+                <Button
+                  mode="contained"
+                  onPress={() => navigation.navigate('Mood')}
+                  icon="plus"
+                  style={styles.logMoodButton}
+                >
+                  Log Your Mood Now
+                </Button>
+              </View>
             )}
           </Card.Content>
         </Card>
 
         {/* Upcoming Appointments */}
-        <Card style={styles.card}>
-          <Card.Title
-            title="Upcoming Appointments"
-            left={(props) => <Icon name="calendar-clock" {...props} size={24} />}
-            right={(props) => (
-              <Button onPress={() => navigation.navigate('Appointments')}>
-                View All
-              </Button>
-            )}
-          />
+        <Animated.View style={{ transform: [{ scale: cardBounce }] }}>
+          <Card style={styles.card}>
+            <Card.Title
+              title="Upcoming Appointments"
+              left={(props) => <Icon name="calendar-clock" {...props} size={24} />}
+              right={(props) => (
+                <Button onPress={() => navigation.navigate('Appointments')}>
+                  View All
+                </Button>
+              )}
+            />
           <Card.Content>
             {upcomingAppointments.length > 0 ? (
               upcomingAppointments.map((appointment) => (
@@ -164,10 +254,12 @@ const StudentDashboard = ({ navigation }) => {
               </View>
             )}
           </Card.Content>
-        </Card>
+          </Card>
+        </Animated.View>
 
         {/* Wellness Tip */}
-        <Card style={styles.card}>
+        <Animated.View style={{ transform: [{ scale: cardBounce }] }}>
+          <Card style={styles.card}>
           <Card.Content>
             <View style={styles.tipHeader}>
               <Icon name="lightbulb" size={20} color={theme.colors.warning} />
@@ -178,8 +270,10 @@ const StudentDashboard = ({ navigation }) => {
               Remember to take breaks and practice self-care.
             </Text>
           </Card.Content>
-        </Card>
-      </ScrollView>
+          </Card>
+        </Animated.View>
+        </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -233,39 +327,92 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     justifyContent: 'space-between',
   },
-  actionCard: {
+  actionCardWrapper: {
     width: '48%',
-    backgroundColor: theme.colors.surface,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: 'center',
     marginBottom: spacing.md,
-    elevation: 2,
+  },
+  actionCard: {
+    width: '100%',
+    borderRadius: 20,
+    padding: spacing.lg,
+    alignItems: 'center',
+    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  iconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   actionText: {
     marginTop: spacing.sm,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
+    color: theme.colors.text,
+    flexWrap: 'nowrap',
   },
   card: {
     margin: spacing.md,
     marginTop: 0,
   },
+  todayMoodCard: {
+    backgroundColor: theme.colors.primary + '10',
+    borderWidth: 2,
+    borderColor: theme.colors.primary + '30',
+  },
+  todayMoodTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   moodDisplay: {
+    flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.md,
+  },
+  moodEmojiCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: theme.colors.primary + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
   },
   moodEmoji: {
     fontSize: 48,
   },
+  moodInfo: {
+    flex: 1,
+  },
   moodText: {
     fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: spacing.xs,
+  },
+  moodNote: {
+    fontSize: 14,
     color: theme.colors.placeholder,
+    fontStyle: 'italic',
+  },
+  noMoodContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+  },
+  noMoodText: {
+    fontSize: 16,
+    color: theme.colors.placeholder,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  logMoodButton: {
     marginTop: spacing.sm,
   },
   appointmentItem: {

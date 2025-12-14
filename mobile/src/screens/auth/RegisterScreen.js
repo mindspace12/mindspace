@@ -77,7 +77,11 @@ const RegisterScreen = ({ navigation }) => {
 
     try {
       await dispatch(register(userData)).unwrap();
-      // Will navigate to onboarding if student, or home if counsellor/management
+      // Navigate to welcome onboarding for first-time users
+      if (role === ROLES.STUDENT) {
+        navigation.navigate('WelcomeOnboarding');
+      }
+      // Will navigate to main app if counsellor/management after registration
     } catch (err) {
       Alert.alert('Registration Failed', err || 'Please try again');
     }

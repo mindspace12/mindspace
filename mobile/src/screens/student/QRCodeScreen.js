@@ -19,16 +19,23 @@ const QRCodeScreen = () => {
         </Text>
 
         <View style={styles.qrContainer}>
-          {user?.anonymousUsername && (
+          {user?.anonymousUsername ? (
             <QRCode
               value={JSON.stringify({
-                studentId: user._id,
+                studentId: user._id || 'MOCK-ID',
                 username: user.anonymousUsername,
                 secret: user.qrSecret || 'MOCK-SECRET',
                 timestamp: Date.now(),
               })}
               size={250}
+              color="#000000"
+              backgroundColor="#FFFFFF"
+              logoSize={50}
+              logoBackgroundColor="#FFFFFF"
+              logoBorderRadius={10}
             />
+          ) : (
+            <Text style={styles.loadingText}>Generating QR Code...</Text>
           )}
         </View>
 

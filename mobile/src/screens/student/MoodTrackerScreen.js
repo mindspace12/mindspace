@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Card, Button, TextInput, Chip } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,8 @@ const MoodTrackerScreen = () => {
   const [intensity, setIntensity] = useState(3);
   const [note, setNote] = useState('');
   const [selectedActivities, setSelectedActivities] = useState([]);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   const moodOptions = [
     { key: 'happy', label: 'Happy', emoji: '😊', color: '#4CAF50' },
@@ -30,6 +32,20 @@ const MoodTrackerScreen = () => {
     dispatch(fetchMoods());
     const now = new Date();
     dispatch(fetchMonthMoods({ year: now.getFullYear(), month: now.getMonth() + 1 }));
+    
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, [dispatch]);
 
   const handleLogMood = async () => {
@@ -64,7 +80,8 @@ const MoodTrackerScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         <Card style={styles.card}>
           <Card.Content>
             <Text style={styles.sectionTitle}>How are you feeling today?</Text>
@@ -180,21 +197,12 @@ const MoodTrackerScreen = () => {
                     </Text>
                   </View>
                 </View>
-                <View style={styles.moodEntryIntensity}>
-                  {Array.from({ length: mood.intensity }).map((_, i) => (
-                    <Icon
-                      key={i}
-                      name="circle"
-                      size={8}
-                      color={getMoodColor(mood.mood)}
-                    />
-                  ))}
-                </View>
               </View>
             ))}
           </Card.Content>
         </Card>
-      </ScrollView>
+        </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -223,19 +231,21 @@ const styles = StyleSheet.create({
   moodOptions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
+    rowGap: spacing.md,
   },
   moodButton: {
     width: '30%',
-    minWidth: 100,
     aspectRatio: 1,
-    borderRadius: 12,
-    backgroundColor: theme.colors.surface,
+    borderRadius: 60,
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.sm,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   moodEmoji: {
     fontSize: 32,
@@ -316,7 +326,10 @@ const styles = StyleSheet.create({
   },
   moodEntryIntensity: {
     flexDirection: 'row',
-    gap: 4,
+    alignItems: 'center',
+  },
+  intensityDot: {
+    marginHorizontal: 2,
   },
 });
 

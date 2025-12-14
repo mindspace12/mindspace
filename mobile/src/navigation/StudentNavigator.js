@@ -22,7 +22,7 @@ const HomeStack = () => (
     <Stack.Screen 
       name="Dashboard" 
       component={StudentDashboard}
-      options={{ title: 'MindSpace' }}
+      options={{ headerShown: false }}
     />
     <Stack.Screen 
       name="CounsellorList" 

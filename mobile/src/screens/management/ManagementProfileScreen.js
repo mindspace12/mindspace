@@ -50,7 +50,7 @@ const ManagementProfileScreen = () => {
             {profileSections.map((section, index) => (
               <View key={index}>
                 <View style={styles.infoRow}>
-                  <Icon name={section.icon} size={24} color={theme.colors.primary} />
+                  <Icon name={section.icon} size={24} color="#F5A962" />
                   <View style={styles.infoText}>
                     <Text style={styles.infoLabel}>{section.title}</Text>
                     <Text style={styles.infoValue}>{section.value}</Text>
@@ -101,7 +101,7 @@ const ManagementProfileScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
@@ -110,32 +110,36 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginTop: spacing.lg,
     marginBottom: spacing.md,
+    backgroundColor: '#FFFFFF',
   },
   profileHeader: {
     alignItems: 'center',
     paddingVertical: spacing.xl,
   },
   avatar: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#F5A962',
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: spacing.md,
+    color: '#000000',
   },
   role: {
     fontSize: 14,
-    color: theme.colors.placeholder,
+    color: '#666666',
     marginTop: spacing.xs,
   },
   card: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
+    backgroundColor: '#FFFFFF',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: spacing.md,
+    color: '#000000',
   },
   infoRow: {
     flexDirection: 'row',
@@ -148,17 +152,19 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: theme.colors.placeholder,
+    color: '#666666',
   },
   infoValue: {
     fontSize: 16,
     marginTop: 2,
+    color: '#000000',
   },
   divider: {
     marginVertical: spacing.sm,
   },
   settingButton: {
     marginTop: spacing.sm,
+    borderColor: '#F5A962',
   },
   buttonContent: {
     paddingVertical: spacing.xs,

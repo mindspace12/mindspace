@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#5B8DBE',
+    backgroundColor: '#F5A962',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -238,14 +238,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   logMoodButton: {
-    backgroundColor: '#F09E54',
+    backgroundColor: '#F5A962',
     paddingVertical: 14,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 2,
-    shadowColor: '#F09E54',
+    shadowColor: '#F5A962',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   appointmentCard: {
-    backgroundColor: '#FFF9E6',
+    backgroundColor: '#FFF4EC',
     marginHorizontal: 20,
     marginBottom: 16,
     padding: 20,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   avatar: {
-    backgroundColor: '#5B8DBE',
+    backgroundColor: '#F5A962',
   },
   appointmentInfo: {
     flex: 1,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 14,
-    color: '#F09E54',
+    color: '#F5A962',
     fontWeight: '600',
     marginRight: 4,
   },
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   affirmationTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#5B8DBE',
+    color: '#F5A962',
     marginBottom: 4,
   },
   affirmationText: {
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     fontSize: 14,
-    color: '#F09E54',
+    color: '#F5A962',
     fontWeight: '600',
     marginRight: 4,
   },
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 20,
-    backgroundColor: '#F09E54',
+    backgroundColor: '#F5A962',
   },
 });
 

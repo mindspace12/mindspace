@@ -71,13 +71,13 @@ const AvailabilityScreen = ({ navigation }) => {
               markedDates={{
                 [selectedDate]: {
                   selected: true,
-                  selectedColor: '#F09E54',
+                  selectedColor: '#F5A962',
                 },
               }}
               theme={{
-                selectedDayBackgroundColor: '#F09E54',
+                selectedDayBackgroundColor: '#F5A962',
                 selectedDayTextColor: '#FFFFFF',
-                todayTextColor: '#F09E54',
+                todayTextColor: '#F5A962',
                 arrowColor: '#000000',
                 monthTextColor: '#000000',
                 textMonthFontSize: 18,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   slotButtonSelected: {
-    backgroundColor: '#F09E54',
+    backgroundColor: '#F5A962',
   },
   slotButtonDisabled: {
     backgroundColor: '#FFFFFF',
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   saveButton: {
-    backgroundColor: '#F09E54',
+    backgroundColor: '#F5A962',
     marginHorizontal: 20,
     marginTop: 20,
     marginBottom: 40,

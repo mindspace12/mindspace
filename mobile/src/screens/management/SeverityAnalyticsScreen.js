@@ -104,7 +104,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
                   style={[
                     styles.barSegment,
                     {
-                      backgroundColor: '#FF6B5A',
+                      backgroundColor: '#6BCF7F',
                       width: `${mildPercentage}%`
                     }
                   ]}
@@ -114,7 +114,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
                   style={[
                     styles.barSegment,
                     {
-                      backgroundColor: '#3D9B9B',
+                      backgroundColor: '#F5A962',
                       width: `${moderatePercentage}%`
                     }
                   ]}
@@ -124,7 +124,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
                   style={[
                     styles.barSegment,
                     {
-                      backgroundColor: '#2C4A5A',
+                      backgroundColor: '#FF9A5A',
                       width: `${severePercentage}%`
                     }
                   ]}
@@ -134,7 +134,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
                   style={[
                     styles.barSegment,
                     {
-                      backgroundColor: '#F5C563',
+                      backgroundColor: '#FF6B6B',
                       width: `${criticalPercentage}%`
                     }
                   ]}
@@ -154,19 +154,19 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
           {/* Legend */}
           <View style={styles.legend}>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#FF6B5A' }]} />
+              <View style={[styles.legendDot, { backgroundColor: '#6BCF7F' }]} />
               <Text style={styles.legendText}>Mild</Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#3D9B9B' }]} />
+              <View style={[styles.legendDot, { backgroundColor: '#F5A962' }]} />
               <Text style={styles.legendText}>Moderate</Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#2C4A5A' }]} />
+              <View style={[styles.legendDot, { backgroundColor: '#FF9A5A' }]} />
               <Text style={styles.legendText}>Severe</Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#F5C563' }]} />
+              <View style={[styles.legendDot, { backgroundColor: '#FF6B6B' }]} />
               <Text style={styles.legendText}>Critical</Text>
             </View>
           </View>

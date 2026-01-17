@@ -55,7 +55,7 @@ const YearAnalyticsScreen = () => {
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <ScrollView style={styles.container}>
           <View style={styles.header}>
-            <Icon name="school" size={40} color={theme.colors.primary} />
+            <Icon name="school" size={40} color="#F5A962" />
             <Text style={styles.title}>Year-wise Analytics</Text>
             <Text style={styles.subtitle}>Session distribution by academic year</Text>
           </View>
@@ -63,7 +63,7 @@ const YearAnalyticsScreen = () => {
           {years.length === 0 ? (
             <Card style={styles.card}>
               <Card.Content style={styles.emptyState}>
-                <Icon name="chart-line" size={64} color={theme.colors.disabled} />
+                <Icon name="chart-line" size={64} color="#CCCCCC" />
                 <Text style={styles.emptyText}>No data available</Text>
               </Card.Content>
             </Card>
@@ -87,15 +87,15 @@ const YearAnalyticsScreen = () => {
 
                   <View style={styles.severityBreakdown}>
                     <View style={styles.severityItem}>
-                      <View style={[styles.severityDot, { backgroundColor: '#F44336' }]} />
+                      <View style={[styles.severityDot, { backgroundColor: '#FF6B6B' }]} />
                       <Text style={styles.severityText}>High: {year.high}</Text>
                     </View>
                     <View style={styles.severityItem}>
-                      <View style={[styles.severityDot, { backgroundColor: '#FF9800' }]} />
+                      <View style={[styles.severityDot, { backgroundColor: '#F5A962' }]} />
                       <Text style={styles.severityText}>Moderate: {year.moderate}</Text>
                     </View>
                     <View style={styles.severityItem}>
-                      <View style={[styles.severityDot, { backgroundColor: '#4CAF50' }]} />
+                      <View style={[styles.severityDot, { backgroundColor: '#6BCF7F' }]} />
                       <Text style={styles.severityText}>Low: {year.low}</Text>
                     </View>
                   </View>
@@ -112,7 +112,7 @@ const YearAnalyticsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
@@ -125,15 +125,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: spacing.sm,
+    color: '#000000',
   },
   subtitle: {
     fontSize: 14,
-    color: theme.colors.placeholder,
+    color: '#666666',
     marginTop: spacing.xs,
   },
   card: {
     marginHorizontal: spacing.md,
     marginBottom: spacing.md,
+    backgroundColor: '#FFFFFF',
   },
   yearHeader: {
     flexDirection: 'row',
@@ -144,10 +146,11 @@ const styles = StyleSheet.create({
   yearName: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#000000',
   },
   yearTotal: {
     fontSize: 16,
-    color: theme.colors.primary,
+    color: '#F5A962',
     fontWeight: '600',
   },
   barContainer: {
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     height: '100%',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#F5A962',
     borderRadius: 4,
   },
   severityBreakdown: {
@@ -179,6 +182,7 @@ const styles = StyleSheet.create({
   },
   severityText: {
     fontSize: 12,
+    color: '#666666',
   },
   emptyState: {
     alignItems: 'center',
@@ -186,7 +190,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginTop: spacing.md,
-    color: theme.colors.placeholder,
+    color: '#999999',
   },
 });
 

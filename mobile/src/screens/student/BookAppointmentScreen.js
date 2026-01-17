@@ -64,7 +64,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
   const markedDates = {
     [selectedDate]: {
       selected: true,
-      selectedColor: '#F09E54',
+      selectedColor: '#F5A962',
     },
   };
 
@@ -105,12 +105,12 @@ const BookAppointmentScreen = ({ route, navigation }) => {
                 backgroundColor: '#FFFFFF',
                 calendarBackground: '#FFFFFF',
                 textSectionTitleColor: '#666666',
-                selectedDayBackgroundColor: '#F09E54',
+                selectedDayBackgroundColor: '#F5A962',
                 selectedDayTextColor: '#FFFFFF',
-                todayTextColor: '#F09E54',
+                todayTextColor: '#F5A962',
                 dayTextColor: '#000000',
                 textDisabledColor: '#D3D3D3',
-                dotColor: '#F09E54',
+                dotColor: '#F5A962',
                 selectedDotColor: '#FFFFFF',
                 arrowColor: '#000000',
                 monthTextColor: '#000000',
@@ -145,7 +145,7 @@ const BookAppointmentScreen = ({ route, navigation }) => {
 
           {/* Time Slots Grid */}
           {isLoading ? (
-            <ActivityIndicator style={styles.loader} color="#F09E54" />
+            <ActivityIndicator style={styles.loader} color="#F5A962" />
           ) : (
             <View style={styles.slotsGrid}>
               {displaySlots.map((slot) => (
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   slotButtonSelected: {
-    backgroundColor: '#F09E54',
+    backgroundColor: '#F5A962',
   },
   slotButtonDisabled: {
     backgroundColor: '#F5F5F5',
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     color: '#CCCCCC',
   },
   confirmButton: {
-    backgroundColor: '#F09E54',
+    backgroundColor: '#F5A962',
     marginHorizontal: 20,
     marginVertical: 24,
     paddingVertical: 16,
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 2,
-    shadowColor: '#F09E54',
+    shadowColor: '#F5A962',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,

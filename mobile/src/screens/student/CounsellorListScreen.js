@@ -48,7 +48,7 @@ const CounsellorListScreen = ({ navigation }) => {
     return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#F09E54" />
+          <ActivityIndicator size="large" color="#F5A962" />
         </View>
       </SafeAreaView>
     );
@@ -168,10 +168,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   activeBadge: {
-    backgroundColor: '#5CB85C',
+    backgroundColor: '#6BCF7F',
   },
   inactiveBadge: {
-    backgroundColor: '#D9534F',
+    backgroundColor: '#FF6B6B',
   },
   statusText: {
     fontSize: 12,

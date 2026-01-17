@@ -222,12 +222,12 @@ const styles = StyleSheet.create({
   filterDropdown: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F3FF',
+    backgroundColor: '#FFF4EC',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E8E5FF',
+    borderColor: '#F5A962',
   },
   filterLabel: {
     fontSize: 14,

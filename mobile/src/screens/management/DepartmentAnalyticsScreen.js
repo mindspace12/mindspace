@@ -192,16 +192,18 @@ const styles = StyleSheet.create({
   filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F0FF',
+    backgroundColor: '#FFF4EC',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: 20,
     gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: '#F5A962',
   },
   filterText: {
     fontSize: 14,
-    color: '#666666',
-    fontWeight: '400',
+    color: '#000000',
+    fontWeight: '500',
   },
   chartSection: {
     paddingHorizontal: spacing.lg,

@@ -10,6 +10,7 @@ import QRScannerScreen from '../screens/counsellor/QRScannerScreen';
 import SessionDetailsScreen from '../screens/counsellor/SessionDetailsScreen';
 import StudentHistoryScreen from '../screens/counsellor/StudentHistoryScreen';
 import CounsellorProfileScreen from '../screens/counsellor/CounsellorProfileScreen';
+import DailyAffirmationsScreen from '../screens/counsellor/DailyAffirmationsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -56,6 +57,9 @@ const CounsellorNavigator = () => {
             case 'Appointments':
               iconName = focused ? 'calendar-check' : 'calendar-check-outline';
               break;
+            case 'Affirmations':
+              iconName = focused ? 'lightbulb' : 'lightbulb-outline';
+              break;
             case 'Profile':
               iconName = focused ? 'account' : 'account-outline';
               break;
@@ -65,7 +69,7 @@ const CounsellorNavigator = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6200EE',
+        tabBarActiveTintColor: '#F5A962',
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
       })}
@@ -73,6 +77,7 @@ const CounsellorNavigator = () => {
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Availability" component={AvailabilityScreen} />
       <Tab.Screen name="Appointments" component={CounsellorAppointmentsScreen} />
+      <Tab.Screen name="Affirmations" component={DailyAffirmationsScreen} />
       <Tab.Screen name="Profile" component={CounsellorProfileScreen} />
     </Tab.Navigator>
   );

@@ -22,7 +22,7 @@ const JournalEditorScreen = ({ route, navigation }) => {
   const [mode, setMode] = useState('text'); // 'text' or 'draw'
   const [paths, setPaths] = useState([]);
   const [currentPath, setCurrentPath] = useState('');
-  const [currentColor, setCurrentColor] = useState(theme.colors.primary);
+  const [currentColor, setCurrentColor] = useState('#F5A962');
   const [canvasHeight, setCanvasHeight] = useState(320);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const currentPathRef = useRef('');
@@ -31,7 +31,7 @@ const JournalEditorScreen = ({ route, navigation }) => {
 
   const moods = ['happy', 'calm', 'anxious', 'sad', 'neutral'];
   const commonTags = ['academic', 'social', 'achievement', 'stress', 'personal'];
-  const drawColors = [theme.colors.primary, theme.colors.secondary, '#000000', '#FF5252', '#4CAF50'];
+  const drawColors = ['#F5A962', '#FF6B6B', '#6BCF7F', '#000000', '#666666'];
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) {
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: theme.colors.primary + '30',
+    borderColor: '#F5A96240',
     borderStyle: 'dashed',
     overflow: 'hidden',
   },

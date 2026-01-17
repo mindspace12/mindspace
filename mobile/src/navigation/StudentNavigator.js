@@ -89,7 +89,7 @@ const StudentNavigator = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6200EE',
+        tabBarActiveTintColor: '#F5A962',
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
       })}

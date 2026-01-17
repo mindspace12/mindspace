@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,10 +12,16 @@ const { width: screenWidth } = Dimensions.get('window');
 const SeverityAnalyticsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const sessions = useSelector((state) => state.sessions?.sessions || []);
-  const [selectedYear, setSelectedYear] = useState('II');
+  const [selectedYear, setSelectedYear] = useState('All');
   const [selectedDepartment, setSelectedDepartment] = useState('All');
-  const [showYearDropdown, setShowYearDropdown] = useState(false);
-  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
+  const [selectedSeverity, setSelectedSeverity] = useState('All');
+  const [showYearModal, setShowYearModal] = useState(false);
+  const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [showSeverityModal, setShowSeverityModal] = useState(false);
+
+  const years = ['I', 'II', 'III', 'IV'];
+  const departments = ['Cloud Computing', 'AIML', 'CSE', 'ECE', 'MECH', 'CIVIL', 'MBA'];
+  const severityLevels = ['Mild', 'Moderate', 'Critical'];
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -28,19 +34,36 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
     loadSessions();
   }, [dispatch]);
 
-  // Calculate severity data
-  const totalSessions = Array.isArray(sessions) ? sessions.length : 0;
-  const mildCount = Array.isArray(sessions) ? sessions.filter((s) => s?.severity === 'low').length : 123;
-  const moderateCount = Array.isArray(sessions) ? sessions.filter((s) => s?.severity === 'moderate').length : 85;
-  const severeCount = Array.isArray(sessions) ? sessions.filter((s) => s?.severity === 'high').length : 42;
-  const criticalCount = Array.isArray(sessions) ? sessions.filter((s) => s?.severity === 'critical').length : 15;
+  // Calculate severity data with filters
+  const filteredSessions = React.useMemo(() => {
+    return (Array.isArray(sessions) ? sessions : []).filter((session) => {
+      const matchesYear = selectedYear === 'All' || session?.student?.year === selectedYear;
+      const matchesDept = selectedDepartment === 'All' || session?.student?.department === selectedDepartment;
 
-  const total = mildCount + moderateCount + severeCount + criticalCount;
+      let matchesSeverity = true;
+      if (selectedSeverity !== 'All') {
+        const severityMap = {
+          'Mild': 'low',
+          'Moderate': 'moderate',
+          'Critical': 'high'
+        };
+        matchesSeverity = session?.severity === severityMap[selectedSeverity];
+      }
+
+      return matchesYear && matchesDept && matchesSeverity;
+    });
+  }, [sessions, selectedYear, selectedDepartment, selectedSeverity]);
+
+  const totalSessions = filteredSessions.length;
+  const mildCount = filteredSessions.filter((s) => s?.severity === 'low').length;
+  const moderateCount = filteredSessions.filter((s) => s?.severity === 'moderate').length;
+  const criticalCount = filteredSessions.filter((s) => s?.severity === 'critical' || s?.severity === 'high').length;
+
+  const total = mildCount + moderateCount + criticalCount || 1;
 
   // Calculate percentages for bar chart
   const mildPercentage = total > 0 ? (mildCount / total) * 100 : 0;
   const moderatePercentage = total > 0 ? (moderateCount / total) * 100 : 0;
-  const severePercentage = total > 0 ? (severeCount / total) * 100 : 0;
   const criticalPercentage = total > 0 ? (criticalCount / total) * 100 : 0;
 
   return (
@@ -54,9 +77,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
           <Icon name="chevron-left" size={28} color="#000000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Severity Trends</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Icon name="tune" size={24} color="#000000" />
-        </TouchableOpacity>
+        <View style={styles.filterButton} />
       </View>
 
       <ScrollView
@@ -68,7 +89,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
           {/* Year Filter */}
           <TouchableOpacity
             style={styles.filterDropdown}
-            onPress={() => setShowYearDropdown(!showYearDropdown)}
+            onPress={() => setShowYearModal(true)}
           >
             <Text style={styles.filterLabel}>Year: </Text>
             <Text style={styles.filterValue}>{selectedYear}</Text>
@@ -78,10 +99,24 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
           {/* Department Filter */}
           <TouchableOpacity
             style={styles.filterDropdown}
-            onPress={() => setShowDepartmentDropdown(!showDepartmentDropdown)}
+            onPress={() => setShowDepartmentModal(true)}
           >
-            <Text style={styles.filterLabel}>Department: </Text>
-            <Text style={styles.filterValue}>{selectedDepartment}</Text>
+            <Text style={styles.filterLabel}>Dept: </Text>
+            <Text style={styles.filterValue}>{selectedDepartment === 'All' ? 'All' : selectedDepartment.substring(0, 6)}</Text>
+            <Icon name="chevron-down" size={20} color="#666666" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Severity Filter Button */}
+        <View style={styles.severityFilterSection}>
+          <TouchableOpacity
+            style={styles.severityFilterButton}
+            onPress={() => setShowSeverityModal(true)}
+          >
+            <Icon name="filter-variant" size={20} color="#F5A962" />
+            <Text style={styles.severityFilterText}>
+              {selectedSeverity === 'All' ? 'All Severities' : selectedSeverity}
+            </Text>
             <Icon name="chevron-down" size={20} color="#666666" />
           </TouchableOpacity>
         </View>
@@ -119,16 +154,6 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
                     }
                   ]}
                 />
-                {/* Severe */}
-                <View
-                  style={[
-                    styles.barSegment,
-                    {
-                      backgroundColor: '#FF9A5A',
-                      width: `${severePercentage}%`
-                    }
-                  ]}
-                />
                 {/* Critical */}
                 <View
                   style={[
@@ -162,16 +187,239 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
               <Text style={styles.legendText}>Moderate</Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#FF9A5A' }]} />
-              <Text style={styles.legendText}>Severe</Text>
-            </View>
-            <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#FF6B6B' }]} />
               <Text style={styles.legendText}>Critical</Text>
             </View>
           </View>
         </View>
       </ScrollView>
+
+      {/* Year Filter Modal */}
+      <Modal
+        visible={showYearModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowYearModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowYearModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Year</Text>
+
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  selectedYear === 'All' && styles.optionButtonSelected
+                ]}
+                onPress={() => {
+                  setSelectedYear('All');
+                  setShowYearModal(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  selectedYear === 'All' && styles.optionTextSelected
+                ]}>All</Text>
+              </TouchableOpacity>
+              {years.map((year) => (
+                <TouchableOpacity
+                  key={year}
+                  style={[
+                    styles.optionButton,
+                    selectedYear === year && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedYear(year);
+                    setShowYearModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedYear === year && styles.optionTextSelected
+                  ]}>{year}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => setShowYearModal(false)}
+            >
+              <Text style={styles.applyButtonText}>Apply Filter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedYear('All');
+                setShowYearModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Department Filter Modal */}
+      <Modal
+        visible={showDepartmentModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDepartmentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowDepartmentModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Department</Text>
+
+            <ScrollView style={styles.scrollableOptions}>
+              <View style={styles.optionsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.optionButton,
+                    selectedDepartment === 'All' && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedDepartment('All');
+                    setShowDepartmentModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedDepartment === 'All' && styles.optionTextSelected
+                  ]}>All</Text>
+                </TouchableOpacity>
+                {departments.map((dept) => (
+                  <TouchableOpacity
+                    key={dept}
+                    style={[
+                      styles.optionButton,
+                      selectedDepartment === dept && styles.optionButtonSelected
+                    ]}
+                    onPress={() => {
+                      setSelectedDepartment(dept);
+                      setShowDepartmentModal(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.optionText,
+                      selectedDepartment === dept && styles.optionTextSelected
+                    ]}>{dept}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => setShowDepartmentModal(false)}
+            >
+              <Text style={styles.applyButtonText}>Apply Filter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedDepartment('All');
+                setShowDepartmentModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Severity Filter Modal */}
+      <Modal
+        visible={showSeverityModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowSeverityModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowSeverityModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Severity Level</Text>
+
+            <View style={styles.severitySection}>
+              <Text style={styles.severitySectionTitle}>Severity Level</Text>
+              <View style={styles.severityOptionsRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.severityOption,
+                    selectedSeverity === 'Mild' && styles.severityOptionMildSelected
+                  ]}
+                  onPress={() => setSelectedSeverity('Mild')}
+                >
+                  <Text style={[
+                    styles.severityOptionText,
+                    selectedSeverity === 'Mild' && styles.severityOptionTextSelected
+                  ]}>Mild</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.severityOption,
+                    selectedSeverity === 'Moderate' && styles.severityOptionModerateSelected
+                  ]}
+                  onPress={() => setSelectedSeverity('Moderate')}
+                >
+                  <Text style={[
+                    styles.severityOptionText,
+                    selectedSeverity === 'Moderate' && styles.severityOptionTextSelected
+                  ]}>Moderate</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.severityOption,
+                    selectedSeverity === 'Critical' && styles.severityOptionCriticalSelected
+                  ]}
+                  onPress={() => setSelectedSeverity('Critical')}
+                >
+                  <Text style={[
+                    styles.severityOptionText,
+                    selectedSeverity === 'Critical' && styles.severityOptionTextSelected
+                  ]}>Critical</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => setShowSeverityModal(false)}
+            >
+              <Text style={styles.applyButtonText}>Apply Filter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedSeverity('All');
+                setShowSeverityModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -216,7 +464,7 @@ const styles = StyleSheet.create({
   filterSection: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 16,
     gap: 12,
   },
   filterDropdown: {
@@ -228,6 +476,28 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#F5A962',
+    flex: 1,
+  },
+  severityFilterSection: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  severityFilterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF4EC',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#F5A962',
+    gap: 8,
+  },
+  severityFilterText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000000',
+    flex: 1,
   },
   filterLabel: {
     fontSize: 14,
@@ -309,6 +579,125 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 14,
     color: '#000000',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    width: '85%',
+    maxHeight: '75%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 24,
+  },
+  scrollableOptions: {
+    maxHeight: 300,
+  },
+  optionsContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  optionButton: {
+    backgroundColor: '#E8E8E8',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    alignItems: 'center',
+  },
+  optionButtonSelected: {
+    backgroundColor: '#FF6B6B',
+  },
+  optionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#4A4A4A',
+  },
+  optionTextSelected: {
+    color: '#FFFFFF',
+  },
+  applyButton: {
+    backgroundColor: '#F5A962',
+    paddingVertical: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  applyButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  clearButton: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
+  clearButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FF6B6B',
+  },
+  severitySection: {
+    marginBottom: 24,
+  },
+  severitySectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 16,
+  },
+  severityOptionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  severityOption: {
+    backgroundColor: '#E8E8E8',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    flex: 1,
+    minWidth: '28%',
+    alignItems: 'center',
+  },
+  severityOptionMildSelected: {
+    backgroundColor: '#6BCF7F',
+  },
+  severityOptionModerateSelected: {
+    backgroundColor: '#F5A962',
+  },
+  severityOptionCriticalSelected: {
+    backgroundColor: '#FF6B6B',
+  },
+  severityOptionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#4A4A4A',
+  },
+  severityOptionTextSelected: {
+    color: '#FFFFFF',
   },
 });
 

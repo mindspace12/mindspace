@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,8 +10,13 @@ import { spacing } from '../../constants/theme';
 const DepartmentAnalyticsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const sessions = useSelector((state) => state.sessions?.sessions || []);
-  const [selectedYear, setSelectedYear] = useState('II');
+  const [selectedYear, setSelectedYear] = useState('All');
   const [selectedDepartment, setSelectedDepartment] = useState('All');
+  const [showYearModal, setShowYearModal] = useState(false);
+  const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+
+  const years = ['I', 'II', 'III', 'IV'];
+  const departments = ['Cloud Computing', 'AIML', 'CSE', 'ECE', 'MECH', 'CIVIL', 'MBA'];
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -24,12 +29,19 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
     loadSessions();
   }, [dispatch]);
 
-  // Group sessions by department
+  // Group sessions by department with filters
   const departmentData = React.useMemo(() => {
     const data = {};
-    const deptOrder = ['CSE', 'ECE', 'MECH', 'CIVIL', 'MBA'];
+    const deptOrder = ['Cloud Computing', 'AIML', 'CSE', 'ECE', 'MECH', 'CIVIL', 'MBA'];
 
-    (Array.isArray(sessions) ? sessions : []).forEach((session) => {
+    // Filter sessions based on selected filters
+    const filteredSessions = (Array.isArray(sessions) ? sessions : []).filter((session) => {
+      const matchesYear = selectedYear === 'All' || session?.student?.year === selectedYear;
+      const matchesDept = selectedDepartment === 'All' || session?.student?.department === selectedDepartment;
+      return matchesYear && matchesDept;
+    });
+
+    filteredSessions.forEach((session) => {
       const dept = session?.student?.department || 'Unknown';
       if (!data[dept]) {
         data[dept] = 0;
@@ -43,7 +55,7 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
         name: dept,
         count: data[dept] || 0,
       }));
-  }, [sessions]);
+  }, [sessions, selectedYear, selectedDepartment]);
 
   const totalSessions = departmentData.reduce((sum, d) => sum + d.count, 0);
   const highestDept = departmentData.length > 0
@@ -65,19 +77,23 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
             <Icon name="chevron-left" size={28} color="#000000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Department Analytics</Text>
-          <TouchableOpacity style={styles.menuButton}>
-            <Icon name="menu" size={24} color="#000000" />
-          </TouchableOpacity>
+          <View style={styles.menuButton} />
         </View>
 
         {/* Filters */}
         <View style={styles.filterContainer}>
-          <TouchableOpacity style={styles.filterPill}>
+          <TouchableOpacity
+            style={styles.filterPill}
+            onPress={() => setShowYearModal(true)}
+          >
             <Text style={styles.filterText}>Year: {selectedYear}</Text>
             <Icon name="chevron-down" size={16} color="#666666" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filterPill}>
-            <Text style={styles.filterText}>Department: {selectedDepartment}</Text>
+          <TouchableOpacity
+            style={styles.filterPill}
+            onPress={() => setShowDepartmentModal(true)}
+          >
+            <Text style={styles.filterText}>Department: {selectedDepartment === 'All' ? 'All' : selectedDepartment}</Text>
             <Icon name="chevron-down" size={16} color="#666666" />
           </TouchableOpacity>
         </View>
@@ -147,6 +163,138 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
 
         <View style={{ height: 80 }} />
       </ScrollView>
+
+      {/* Year Filter Modal */}
+      <Modal
+        visible={showYearModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowYearModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowYearModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Year</Text>
+
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  selectedYear === 'All' && styles.optionButtonSelected
+                ]}
+                onPress={() => {
+                  setSelectedYear('All');
+                  setShowYearModal(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  selectedYear === 'All' && styles.optionTextSelected
+                ]}>All</Text>
+              </TouchableOpacity>
+              {years.map((year) => (
+                <TouchableOpacity
+                  key={year}
+                  style={[
+                    styles.optionButton,
+                    selectedYear === year && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedYear(year);
+                    setShowYearModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedYear === year && styles.optionTextSelected
+                  ]}>{year}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedYear('All');
+                setShowYearModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Department Filter Modal */}
+      <Modal
+        visible={showDepartmentModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDepartmentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowDepartmentModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Department</Text>
+
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  selectedDepartment === 'All' && styles.optionButtonSelected
+                ]}
+                onPress={() => {
+                  setSelectedDepartment('All');
+                  setShowDepartmentModal(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  selectedDepartment === 'All' && styles.optionTextSelected
+                ]}>All</Text>
+              </TouchableOpacity>
+              {departments.map((dept) => (
+                <TouchableOpacity
+                  key={dept}
+                  style={[
+                    styles.optionButton,
+                    selectedDepartment === dept && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedDepartment(dept);
+                    setShowDepartmentModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedDepartment === dept && styles.optionTextSelected
+                  ]}>{dept}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedDepartment('All');
+                setShowDepartmentModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -302,6 +450,70 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000000',
     letterSpacing: -0.5,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    width: '85%',
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 24,
+  },
+  optionsContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  optionButton: {
+    backgroundColor: '#E8E8E8',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    alignItems: 'center',
+  },
+  optionButtonSelected: {
+    backgroundColor: '#FF6B6B',
+  },
+  optionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#4A4A4A',
+  },
+  optionTextSelected: {
+    color: '#FFFFFF',
+  },
+  clearButton: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 16,
+    borderRadius: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
+  clearButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FF6B6B',
   },
 });
 

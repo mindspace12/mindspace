@@ -1,22 +1,47 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput, Portal, Modal } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as ImagePicker from 'expo-image-picker';
 import { logout } from '../../redux/slices/authSlice';
 import { spacing } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const CounsellorProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const [dailyAffirmations, setDailyAffirmations] = useState(true);
   const [editForm, setEditForm] = useState({
     name: user?.name || '',
     experience: user?.experience || '',
     designation: user?.designation || '',
     location: user?.location || '',
   });
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'Permission to access gallery is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
 
   const handleSaveProfile = async () => {
     try {
@@ -61,9 +86,18 @@ const CounsellorProfileScreen = ({ navigation }) => {
         {/* Profile Image */}
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatarCircle}>
-              <Icon name="account" size={60} color="#999999" />
-            </View>
+            <TouchableOpacity onPress={pickImage} style={styles.avatarWrapper}>
+              {profileImage ? (
+                <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatarCircle}>
+                  <Icon name="account" size={60} color="#999999" />
+                </View>
+              )}
+              <View style={styles.cameraIconContainer}>
+                <Icon name="camera" size={20} color="#FFFFFF" />
+              </View>
+            </TouchableOpacity>
           </View>
           <Text style={styles.name}>{user?.name || 'Dr. Elara Vance'}</Text>
         </View>
@@ -83,6 +117,41 @@ const CounsellorProfileScreen = ({ navigation }) => {
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Location</Text>
             <Text style={styles.infoValue}>{user?.location || 'Main Campus, University City'}</Text>
+          </View>
+        </View>
+
+        {/* App Preferences */}
+        <View style={styles.preferencesSection}>
+          <Text style={styles.sectionTitle}>App Preferences</Text>
+
+          <View style={styles.preferenceItem}>
+            <View style={styles.preferenceInfo}>
+              <Text style={styles.preferenceLabel}>Daily Affirmations</Text>
+              <Text style={styles.preferenceDescription}>
+                Receive daily motivational quotes
+              </Text>
+            </View>
+            <Switch
+              value={dailyAffirmations}
+              onValueChange={setDailyAffirmations}
+              trackColor={{ false: '#D1D1D1', true: '#F5A962' }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+
+          <View style={styles.preferenceItem}>
+            <View style={styles.preferenceInfo}>
+              <Text style={styles.preferenceLabel}>Dark Mode</Text>
+              <Text style={styles.preferenceDescription}>
+                Enable dark theme for the app
+              </Text>
+            </View>
+            <Switch
+              value={isDarkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{ false: '#D1D1D1', true: '#F5A962' }}
+              thumbColor="#FFFFFF"
+            />
           </View>
         </View>
 
@@ -236,6 +305,42 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#000000',
     letterSpacing: 0.2,
+  },
+  preferencesSection: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    marginTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 16,
+    letterSpacing: 0.3,
+  },
+  preferenceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  preferenceInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  preferenceLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000000',
+    marginBottom: 4,
+    letterSpacing: 0.2,
+  },
+  preferenceDescription: {
+    fontSize: 13,
+    color: '#666666',
+    letterSpacing: 0.1,
   },
   logoutButton: {
     marginHorizontal: 20,

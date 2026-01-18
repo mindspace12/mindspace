@@ -6,17 +6,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { fetchSessions } from '../../redux/slices/sessionSlice';
 import { spacing } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const DepartmentAnalyticsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const sessions = useSelector((state) => state.sessions?.sessions || []);
+  const { colors } = useTheme();
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedDepartment, setSelectedDepartment] = useState('All');
+  const [selectedMonth, setSelectedMonth] = useState('All');
+  const [selectedCalendarYear, setSelectedCalendarYear] = useState('All');
   const [showYearModal, setShowYearModal] = useState(false);
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [showMonthModal, setShowMonthModal] = useState(false);
+  const [showCalendarYearModal, setShowCalendarYearModal] = useState(false);
 
   const years = ['I', 'II', 'III', 'IV'];
   const departments = ['Cloud Computing', 'AIML', 'CSE', 'ECE', 'MECH', 'CIVIL', 'MBA'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const calendarYears = ['2024', '2025', '2026'];
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -38,7 +46,21 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
     const filteredSessions = (Array.isArray(sessions) ? sessions : []).filter((session) => {
       const matchesYear = selectedYear === 'All' || session?.student?.year === selectedYear;
       const matchesDept = selectedDepartment === 'All' || session?.student?.department === selectedDepartment;
-      return matchesYear && matchesDept;
+
+      let matchesMonth = true;
+      if (selectedMonth !== 'All' && session?.date) {
+        const sessionDate = new Date(session.date);
+        const sessionMonth = sessionDate.toLocaleDateString('en-US', { month: 'long' });
+        matchesMonth = sessionMonth === selectedMonth;
+      }
+
+      let matchesCalendarYear = true;
+      if (selectedCalendarYear !== 'All' && session?.date) {
+        const sessionDate = new Date(session.date);
+        matchesCalendarYear = sessionDate.getFullYear().toString() === selectedCalendarYear;
+      }
+
+      return matchesYear && matchesDept && matchesMonth && matchesCalendarYear;
     });
 
     filteredSessions.forEach((session) => {
@@ -55,7 +77,7 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
         name: dept,
         count: data[dept] || 0,
       }));
-  }, [sessions, selectedYear, selectedDepartment]);
+  }, [sessions, selectedYear, selectedDepartment, selectedMonth, selectedCalendarYear]);
 
   const totalSessions = departmentData.reduce((sum, d) => sum + d.count, 0);
   const highestDept = departmentData.length > 0
@@ -69,24 +91,24 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
   const chartHeight = 300;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView style={styles.container}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Icon name="chevron-left" size={28} color="#000000" />
+            <Icon name="chevron-left" size={28} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Department Analytics</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Department Analytics</Text>
           <View style={styles.menuButton} />
         </View>
 
-        {/* Filters */}
+        {/* Filters Row 1 */}
         <View style={styles.filterContainer}>
           <TouchableOpacity
             style={styles.filterPill}
             onPress={() => setShowYearModal(true)}
           >
-            <Text style={styles.filterText}>Year: {selectedYear}</Text>
+            <Text style={styles.filterText}>Year of Study: {selectedYear}</Text>
             <Icon name="chevron-down" size={16} color="#666666" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -94,6 +116,24 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
             onPress={() => setShowDepartmentModal(true)}
           >
             <Text style={styles.filterText}>Department: {selectedDepartment === 'All' ? 'All' : selectedDepartment}</Text>
+            <Icon name="chevron-down" size={16} color="#666666" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Filters Row 2 */}
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={styles.filterPill}
+            onPress={() => setShowMonthModal(true)}
+          >
+            <Text style={styles.filterText}>Month: {selectedMonth}</Text>
+            <Icon name="chevron-down" size={16} color="#666666" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.filterPill}
+            onPress={() => setShowCalendarYearModal(true)}
+          >
+            <Text style={styles.filterText}>Calendar Year: {selectedCalendarYear}</Text>
             <Icon name="chevron-down" size={16} color="#666666" />
           </TouchableOpacity>
         </View>
@@ -295,6 +335,140 @@ const DepartmentAnalyticsScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Month Filter Modal */}
+      <Modal
+        visible={showMonthModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowMonthModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowMonthModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Month</Text>
+
+            <ScrollView style={styles.scrollableOptions}>
+              <View style={styles.optionsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.optionButton,
+                    selectedMonth === 'All' && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedMonth('All');
+                    setShowMonthModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedMonth === 'All' && styles.optionTextSelected
+                  ]}>All</Text>
+                </TouchableOpacity>
+                {months.map((month) => (
+                  <TouchableOpacity
+                    key={month}
+                    style={[
+                      styles.optionButton,
+                      selectedMonth === month && styles.optionButtonSelected
+                    ]}
+                    onPress={() => {
+                      setSelectedMonth(month);
+                      setShowMonthModal(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.optionText,
+                      selectedMonth === month && styles.optionTextSelected
+                    ]}>{month}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedMonth('All');
+                setShowMonthModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Calendar Year Filter Modal */}
+      <Modal
+        visible={showCalendarYearModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCalendarYearModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowCalendarYearModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Calendar Year</Text>
+
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  selectedCalendarYear === 'All' && styles.optionButtonSelected
+                ]}
+                onPress={() => {
+                  setSelectedCalendarYear('All');
+                  setShowCalendarYearModal(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  selectedCalendarYear === 'All' && styles.optionTextSelected
+                ]}>All</Text>
+              </TouchableOpacity>
+              {calendarYears.map((year) => (
+                <TouchableOpacity
+                  key={year}
+                  style={[
+                    styles.optionButton,
+                    selectedCalendarYear === year && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedCalendarYear(year);
+                    setShowCalendarYearModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedCalendarYear === year && styles.optionTextSelected
+                  ]}>{year}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedCalendarYear('All');
+                setShowCalendarYearModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -483,6 +657,9 @@ const styles = StyleSheet.create({
   optionsContainer: {
     gap: 12,
     marginBottom: 24,
+  },
+  scrollableOptions: {
+    maxHeight: 300,
   },
   optionButton: {
     backgroundColor: '#E8E8E8',

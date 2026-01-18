@@ -9,6 +9,7 @@ import CounsellorAppointmentsScreen from '../screens/counsellor/CounsellorAppoin
 import QRScannerScreen from '../screens/counsellor/QRScannerScreen';
 import SessionDetailsScreen from '../screens/counsellor/SessionDetailsScreen';
 import StudentHistoryScreen from '../screens/counsellor/StudentHistoryScreen';
+import SessionHistoryScreen from '../screens/counsellor/SessionHistoryScreen';
 import CounsellorProfileScreen from '../screens/counsellor/CounsellorProfileScreen';
 import DailyAffirmationsScreen from '../screens/counsellor/DailyAffirmationsScreen';
 
@@ -20,6 +21,11 @@ const HomeStack = () => (
     <Stack.Screen
       name="Dashboard"
       component={CounsellorDashboard}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="MyAppointments"
+      component={CounsellorAppointmentsScreen}
       options={{ headerShown: false }}
     />
     <Stack.Screen
@@ -54,11 +60,11 @@ const CounsellorNavigator = () => {
             case 'Availability':
               iconName = focused ? 'calendar-clock' : 'calendar-clock';
               break;
-            case 'Appointments':
-              iconName = focused ? 'calendar-check' : 'calendar-check-outline';
-              break;
-            case 'Affirmations':
+            case 'Affirmation':
               iconName = focused ? 'lightbulb' : 'lightbulb-outline';
+              break;
+            case 'History':
+              iconName = focused ? 'history' : 'history';
               break;
             case 'Profile':
               iconName = focused ? 'account' : 'account-outline';
@@ -76,8 +82,8 @@ const CounsellorNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Availability" component={AvailabilityScreen} />
-      <Tab.Screen name="Appointments" component={CounsellorAppointmentsScreen} />
-      <Tab.Screen name="Affirmations" component={DailyAffirmationsScreen} />
+      <Tab.Screen name="Affirmation" component={DailyAffirmationsScreen} />
+      <Tab.Screen name="History" component={SessionHistoryScreen} />
       <Tab.Screen name="Profile" component={CounsellorProfileScreen} />
     </Tab.Navigator>
   );

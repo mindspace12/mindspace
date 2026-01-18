@@ -79,18 +79,17 @@ const StudentDashboard = ({ navigation }) => {
         </View>
 
         {/* Upcoming Appointment Card */}
-        {upcomingAppointment && (
+        {upcomingAppointment ? (
           <View style={styles.appointmentCard}>
             <View style={styles.appointmentHeader}>
-              <Icon name="calendar-blank" size={20} color="#000000" />
+              <Icon name="calendar-blank" size={24} color="#F5A962" />
               <Text style={styles.appointmentTitle}>Upcoming Appointment</Text>
             </View>
             <View style={styles.appointmentDetails}>
-              <Avatar.Icon
-                size={40}
-                icon="account"
+              <Avatar.Image
+                size={48}
+                source={{ uri: upcomingAppointment.counsellor?.avatar || 'https://via.placeholder.com/48' }}
                 style={styles.avatar}
-                color="#FFFFFF"
               />
               <View style={styles.appointmentInfo}>
                 <Text style={styles.counsellorName}>
@@ -101,10 +100,7 @@ const StudentDashboard = ({ navigation }) => {
                     weekday: 'long',
                     month: 'long',
                     day: 'numeric',
-                  })} at {new Date(upcomingAppointment.appointmentDate).toLocaleTimeString([], {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
+                  })} at {upcomingAppointment.time || '2:00 PM'}
                 </Text>
               </View>
             </View>
@@ -113,10 +109,10 @@ const StudentDashboard = ({ navigation }) => {
               onPress={() => navigation.navigate('Appointments')}
             >
               <Text style={styles.viewDetailsText}>View Details</Text>
-              <Icon name="arrow-right" size={16} color="#F09E54" />
+              <Icon name="arrow-right" size={18} color="#F5A962" />
             </TouchableOpacity>
           </View>
-        )}
+        ) : null}
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
@@ -263,6 +259,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 20,
     borderRadius: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   appointmentHeader: {
     flexDirection: 'row',
@@ -270,11 +271,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   appointmentTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '600',
     color: '#000000',
-    marginLeft: 8,
-    letterSpacing: 0.1,
+    marginLeft: 12,
+    letterSpacing: 0.2,
   },
   appointmentDetails: {
     flexDirection: 'row',
@@ -282,70 +283,80 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   avatar: {
-    backgroundColor: '#F5A962',
+    backgroundColor: '#E0E0E0',
   },
   appointmentInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 16,
   },
   counsellorName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: '#000000',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: 0.15,
   },
   appointmentDate: {
     fontSize: 14,
-    color: '#666666',
+    color: '#8B8B8B',
     lineHeight: 20,
+    letterSpacing: 0.1,
   },
   viewDetailsButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
   },
   viewDetailsText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#F5A962',
     fontWeight: '600',
-    marginRight: 4,
+    marginRight: 6,
+    letterSpacing: 0.2,
   },
   actionButtons: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    marginBottom: 16,
+    marginBottom: 20,
     gap: 16,
   },
   actionButton: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingVertical: 24,
+    paddingVertical: 28,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   actionButtonText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#000000',
-    marginTop: 8,
+    color: '#666666',
+    marginTop: 12,
+    letterSpacing: 0.2,
   },
   affirmationSection: {
     paddingHorizontal: 20,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   affirmationTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
-    color: '#F5A962',
-    marginBottom: 4,
+    color: '#4A90E2',
+    marginBottom: 8,
+    letterSpacing: 0.2,
   },
   affirmationText: {
-    fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
+    fontSize: 15,
+    color: '#AAAAAA',
+    lineHeight: 22,
+    letterSpacing: 0.1,
   },
   counsellorsSection: {
     paddingHorizontal: 20,

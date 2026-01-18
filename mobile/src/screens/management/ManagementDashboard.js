@@ -6,12 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { fetchSessions } from '../../redux/slices/sessionSlice';
 import { spacing } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const ManagementDashboard = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth || {});
   const sessions = useSelector((state) => state.sessions?.sessions || []);
   const [refreshing, setRefreshing] = React.useState(false);
+  const { colors, isDarkMode, toggleDarkMode } = useTheme();
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -68,24 +70,34 @@ const ManagementDashboard = ({ navigation }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
           <View style={styles.iconCircle}>
             <Icon name="brain" size={28} color="#FFFFFF" />
           </View>
-          <Text style={styles.headerTitle}>Welcome Management</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Welcome Management</Text>
+          <TouchableOpacity
+            style={styles.darkModeButton}
+            onPress={toggleDarkMode}
+          >
+            <Icon
+              name={isDarkMode ? "white-balance-sunny" : "moon-waning-crescent"}
+              size={24}
+              color={colors.text}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Stats Cards */}
         <View style={styles.statsContainer}>
           {/* Total Sessions */}
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Total Sessions</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.secondary }]}>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Sessions</Text>
             <Text style={styles.statValue}>{totalSessions.toLocaleString()}</Text>
             <View style={styles.statChange}>
               <Icon name="arrow-up" size={14} color="#4CAF50" />
@@ -94,24 +106,24 @@ const ManagementDashboard = ({ navigation }) => {
           </View>
 
           {/* Avg Severity */}
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Avg. Severity</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.secondary }]}>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Avg. Severity</Text>
             <Text style={styles.statValue}>{avgSeverity}</Text>
             <View style={styles.statChange}>
               <Icon name="arrow-up" size={14} color="#F44336" />
               <Text style={[styles.statChangeText, { color: '#F44336' }]}>+0.1 (increase)</Text>
             </View>
-            <Text style={styles.statSubtext}>On a scale of 1-5</Text>
+            <Text style={[styles.statSubtext, { color: colors.textTertiary }]}>On a scale of 1-5</Text>
           </View>
         </View>
 
         {/* Sessions by Counsellor */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sessions by Counsellor</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Sessions by Counsellor</Text>
           {counsellorSessions.map((counsellor, index) => (
             <View key={index} style={styles.counsellorRow}>
-              <Text style={styles.counsellorName}>{counsellor.name}</Text>
-              <View style={styles.barContainer}>
+              <Text style={[styles.counsellorName, { color: colors.text }]}>{counsellor.name}</Text>
+              <View style={[styles.barContainer, { backgroundColor: colors.secondary }]}>
                 <View
                   style={[
                     styles.bar,
@@ -119,14 +131,14 @@ const ManagementDashboard = ({ navigation }) => {
                   ]}
                 />
               </View>
-              <Text style={styles.counsellorCount}>{counsellor.count}</Text>
+              <Text style={[styles.counsellorCount, { color: colors.text }]}>{counsellor.count}</Text>
             </View>
           ))}
         </View>
 
         {/* Analytics Reports */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Analytics Reports</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Analytics Reports</Text>
           {analytics.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => navigation.navigate(item.screen)}>
               <View style={styles.analyticsCard}>
@@ -158,6 +170,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     backgroundColor: '#FFFFFF',
@@ -178,6 +191,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000000',
     letterSpacing: 0.15,
+    flex: 1,
+  },
+  darkModeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   statsContainer: {
     flexDirection: 'row',

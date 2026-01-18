@@ -145,7 +145,16 @@ const CounsellorDashboard = ({ navigation }) => {
                 Next session starts at {nextSession.time} with {nextSession.student}.
               </Text>
             )}
-            <TouchableOpacity onPress={() => navigation.navigate('Appointments')}>
+            <TouchableOpacity
+              style={styles.viewScheduleButton}
+              onPress={() => {
+                // Navigate to Home stack, then to a new screen in that stack
+                navigation.navigate('Home', {
+                  screen: 'MyAppointments',
+                  params: { from: 'dashboard' }
+                });
+              }}
+            >
               <Text style={styles.viewScheduleLink}>View Full Schedule</Text>
             </TouchableOpacity>
           </View>

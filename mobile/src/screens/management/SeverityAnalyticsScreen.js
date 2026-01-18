@@ -6,22 +6,30 @@ import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { fetchSessions } from '../../redux/slices/sessionSlice';
 import { spacing, theme } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const SeverityAnalyticsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const sessions = useSelector((state) => state.sessions?.sessions || []);
+  const { colors } = useTheme();
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedDepartment, setSelectedDepartment] = useState('All');
   const [selectedSeverity, setSelectedSeverity] = useState('All');
+  const [selectedMonth, setSelectedMonth] = useState('All');
+  const [selectedCalendarYear, setSelectedCalendarYear] = useState('All');
   const [showYearModal, setShowYearModal] = useState(false);
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
   const [showSeverityModal, setShowSeverityModal] = useState(false);
+  const [showMonthModal, setShowMonthModal] = useState(false);
+  const [showCalendarYearModal, setShowCalendarYearModal] = useState(false);
 
   const years = ['I', 'II', 'III', 'IV'];
   const departments = ['Cloud Computing', 'AIML', 'CSE', 'ECE', 'MECH', 'CIVIL', 'MBA'];
   const severityLevels = ['Mild', 'Moderate', 'Critical'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const calendarYears = ['2024', '2025', '2026'];
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -50,9 +58,22 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
         matchesSeverity = session?.severity === severityMap[selectedSeverity];
       }
 
-      return matchesYear && matchesDept && matchesSeverity;
+      let matchesMonth = true;
+      if (selectedMonth !== 'All' && session?.date) {
+        const sessionDate = new Date(session.date);
+        const sessionMonth = sessionDate.toLocaleDateString('en-US', { month: 'long' });
+        matchesMonth = sessionMonth === selectedMonth;
+      }
+
+      let matchesCalendarYear = true;
+      if (selectedCalendarYear !== 'All' && session?.date) {
+        const sessionDate = new Date(session.date);
+        matchesCalendarYear = sessionDate.getFullYear().toString() === selectedCalendarYear;
+      }
+
+      return matchesYear && matchesDept && matchesSeverity && matchesMonth && matchesCalendarYear;
     });
-  }, [sessions, selectedYear, selectedDepartment, selectedSeverity]);
+  }, [sessions, selectedYear, selectedDepartment, selectedSeverity, selectedMonth, selectedCalendarYear]);
 
   const totalSessions = filteredSessions.length;
   const mildCount = filteredSessions.filter((s) => s?.severity === 'low').length;
@@ -67,21 +88,21 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
   const criticalPercentage = total > 0 ? (criticalCount / total) * 100 : 0;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="chevron-left" size={28} color="#000000" />
+          <Icon name="chevron-left" size={28} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Severity Trends</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Severity Trends</Text>
         <View style={styles.filterButton} />
       </View>
 
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Filter Section */}
@@ -91,7 +112,7 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
             style={styles.filterDropdown}
             onPress={() => setShowYearModal(true)}
           >
-            <Text style={styles.filterLabel}>Year: </Text>
+            <Text style={styles.filterLabel}>Year of Study: </Text>
             <Text style={styles.filterValue}>{selectedYear}</Text>
             <Icon name="chevron-down" size={20} color="#666666" />
           </TouchableOpacity>
@@ -103,6 +124,27 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
           >
             <Text style={styles.filterLabel}>Dept: </Text>
             <Text style={styles.filterValue}>{selectedDepartment === 'All' ? 'All' : selectedDepartment.substring(0, 6)}</Text>
+            <Icon name="chevron-down" size={20} color="#666666" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Month and Calendar Year Filters */}
+        <View style={styles.filterSection}>
+          <TouchableOpacity
+            style={styles.filterDropdown}
+            onPress={() => setShowMonthModal(true)}
+          >
+            <Text style={styles.filterLabel}>Month: </Text>
+            <Text style={styles.filterValue}>{selectedMonth === 'All' ? 'All' : selectedMonth.substring(0, 3)}</Text>
+            <Icon name="chevron-down" size={20} color="#666666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.filterDropdown}
+            onPress={() => setShowCalendarYearModal(true)}
+          >
+            <Text style={styles.filterLabel}>Calendar Year: </Text>
+            <Text style={styles.filterValue}>{selectedCalendarYear}</Text>
             <Icon name="chevron-down" size={20} color="#666666" />
           </TouchableOpacity>
         </View>
@@ -123,55 +165,29 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
 
         {/* Chart Section */}
         <View style={styles.chartSection}>
-          <Text style={styles.chartTitle}>Severity Distribution by Month</Text>
+          <Text style={styles.chartTitle}>Severity Distribution</Text>
 
-          {/* Stacked Bar Chart */}
+          {/* Single Horizontal Stacked Bar Chart */}
           <View style={styles.chartContainer}>
             <View style={styles.chartYAxis}>
-              <Text style={styles.yAxisLabel}>323</Text>
+              <Text style={styles.yAxisLabel}>Sessions</Text>
             </View>
 
             <View style={styles.barChartArea}>
-              {/* Horizontal Stacked Bar */}
+              {/* Single Stacked Bar */}
               <View style={styles.stackedBar}>
-                {/* Mild */}
-                <View
-                  style={[
-                    styles.barSegment,
-                    {
-                      backgroundColor: '#6BCF7F',
-                      width: `${mildPercentage}%`
-                    }
-                  ]}
-                />
-                {/* Moderate */}
-                <View
-                  style={[
-                    styles.barSegment,
-                    {
-                      backgroundColor: '#F5A962',
-                      width: `${moderatePercentage}%`
-                    }
-                  ]}
-                />
-                {/* Critical */}
-                <View
-                  style={[
-                    styles.barSegment,
-                    {
-                      backgroundColor: '#FF6B6B',
-                      width: `${criticalPercentage}%`
-                    }
-                  ]}
-                />
+                <View style={[styles.barSegment, { backgroundColor: '#6BCF7F', width: `${mildPercentage}%` }]} />
+                <View style={[styles.barSegment, { backgroundColor: '#F5A962', width: `${moderatePercentage}%` }]} />
+                <View style={[styles.barSegment, { backgroundColor: '#FF6B6B', width: `${criticalPercentage}%` }]} />
               </View>
 
               {/* X-Axis */}
               <View style={styles.xAxis}>
                 <Text style={styles.xAxisLabel}>0</Text>
-                <Text style={styles.xAxisLabel}>70</Text>
-                <Text style={styles.xAxisLabel}>140</Text>
-                <Text style={styles.xAxisLabel}>210</Text>
+                <Text style={styles.xAxisLabel}>25</Text>
+                <Text style={styles.xAxisLabel}>50</Text>
+                <Text style={styles.xAxisLabel}>75</Text>
+                <Text style={styles.xAxisLabel}>100</Text>
               </View>
             </View>
           </View>
@@ -420,6 +436,154 @@ const SeverityAnalyticsScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Month Filter Modal */}
+      <Modal
+        visible={showMonthModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowMonthModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowMonthModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Month</Text>
+
+            <ScrollView style={styles.scrollableOptions}>
+              <View style={styles.optionsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.optionButton,
+                    selectedMonth === 'All' && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedMonth('All');
+                    setShowMonthModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedMonth === 'All' && styles.optionTextSelected
+                  ]}>All</Text>
+                </TouchableOpacity>
+                {months.map((month) => (
+                  <TouchableOpacity
+                    key={month}
+                    style={[
+                      styles.optionButton,
+                      selectedMonth === month && styles.optionButtonSelected
+                    ]}
+                    onPress={() => {
+                      setSelectedMonth(month);
+                      setShowMonthModal(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.optionText,
+                      selectedMonth === month && styles.optionTextSelected
+                    ]}>{month}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => setShowMonthModal(false)}
+            >
+              <Text style={styles.applyButtonText}>Apply Filter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedMonth('All');
+                setShowMonthModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Calendar Year Filter Modal */}
+      <Modal
+        visible={showCalendarYearModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCalendarYearModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Options</Text>
+              <TouchableOpacity onPress={() => setShowCalendarYearModal(false)}>
+                <Icon name="close" size={24} color="#000000" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select Year</Text>
+
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  selectedCalendarYear === 'All' && styles.optionButtonSelected
+                ]}
+                onPress={() => {
+                  setSelectedCalendarYear('All');
+                  setShowCalendarYearModal(false);
+                }}
+              >
+                <Text style={[
+                  styles.optionText,
+                  selectedCalendarYear === 'All' && styles.optionTextSelected
+                ]}>All</Text>
+              </TouchableOpacity>
+              {calendarYears.map((year) => (
+                <TouchableOpacity
+                  key={year}
+                  style={[
+                    styles.optionButton,
+                    selectedCalendarYear === year && styles.optionButtonSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedCalendarYear(year);
+                    setShowCalendarYearModal(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.optionText,
+                    selectedCalendarYear === year && styles.optionTextSelected
+                  ]}>{year}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => setShowCalendarYearModal(false)}
+            >
+              <Text style={styles.applyButtonText}>Apply Filter</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={() => {
+                setSelectedCalendarYear('All');
+                setShowCalendarYearModal(false);
+              }}
+            >
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -527,25 +691,26 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   chartYAxis: {
-    width: 40,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    paddingRight: 8,
+    width: 50,
+    justifyContent: 'space-between',
+    paddingRight: 12,
+    paddingVertical: 4,
   },
   yAxisLabel: {
-    fontSize: 14,
-    color: '#000000',
+    fontSize: 13,
+    color: '#666666',
     fontWeight: '500',
+    textAlign: 'right',
   },
   barChartArea: {
     flex: 1,
   },
   stackedBar: {
     flexDirection: 'row',
-    height: 140,
-    borderRadius: 4,
+    height: 80,
+    borderRadius: 12,
     overflow: 'hidden',
-    marginBottom: 12,
+    marginBottom: 24,
   },
   barSegment: {
     height: '100%',

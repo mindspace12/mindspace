@@ -5,12 +5,13 @@ import { Text } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/slices/authSlice';
 import { spacing, theme } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [dailyAffirmations, setDailyAffirmations] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   const handleLogout = () => {
     Alert.alert(
@@ -80,8 +81,8 @@ const ProfileScreen = () => {
           <View style={styles.preferenceItem}>
             <Text style={styles.preferenceLabel}>Enable dark mode</Text>
             <Switch
-              value={darkMode}
-              onValueChange={setDarkMode}
+              value={isDarkMode}
+              onValueChange={toggleDarkMode}
               trackColor={{ false: '#D1D1D1', true: '#F5A962' }}
               thumbColor={'#FFFFFF'}
             />

@@ -4,12 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button, TextInput, Card, IconButton } from 'react-native-paper';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useDispatch } from 'react-redux';
+import { startSession as startSessionAction } from '../../redux/slices/sessionSlice';
 import { spacing, theme } from '../../constants/theme';
 import { sessionService } from '../../services/sessionService';
 
 const { width } = Dimensions.get('window');
 
 const QRScannerScreen = ({ route, navigation }) => {
+  const dispatch = useDispatch();
   const { mode = 'checkin', sessionId = null } = route.params || {};
   const [studentCode, setStudentCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,25 +47,30 @@ const QRScannerScreen = ({ route, navigation }) => {
           ]
         );
       } else {
-        // Start session with checkin scan
-        const response = await sessionService.startSession({ qrData: codeToUse });
+        // Start session with checkin scan - dispatch to Redux
+        const resultAction = await dispatch(startSessionAction({ qrData: codeToUse }));
 
-        Alert.alert(
-          'Session Started',
-          `Session started with ${response.data.student?.anonymousUsername || 'student'}`,
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.navigate('Dashboard')
-            }
-          ]
-        );
+        if (startSessionAction.fulfilled.match(resultAction)) {
+          const sessionData = resultAction.payload;
+          Alert.alert(
+            'Session Started',
+            `Session started successfully with ${sessionData.student?.anonymousUsername || 'student'}`,
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation.navigate('Dashboard')
+              }
+            ]
+          );
+        } else {
+          throw new Error(resultAction.payload || 'Failed to start session');
+        }
       }
       setStudentCode('');
     } catch (error) {
       Alert.alert(
         'Error',
-        error.response?.data?.message || `Failed to ${mode === 'checkout' ? 'checkout' : 'start'} session`
+        error.message || error.response?.data?.message || `Failed to ${mode === 'checkout' ? 'checkout' : 'start'} session`
       );
     } finally {
       setLoading(false);

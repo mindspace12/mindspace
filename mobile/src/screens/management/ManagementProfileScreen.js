@@ -1,15 +1,18 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, Button, Card, Avatar, Divider } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { logout } from '../../redux/slices/authSlice';
 import { spacing, theme } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 const ManagementProfileScreen = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const [dailyAffirmations, setDailyAffirmations] = useState(true);
 
   const profileSections = [
     {
@@ -59,6 +62,42 @@ const ManagementProfileScreen = () => {
                 {index < profileSections.length - 1 && <Divider style={styles.divider} />}
               </View>
             ))}
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>App Preferences</Text>
+
+            <View style={styles.preferenceItem}>
+              <View style={styles.preferenceInfo}>
+                <Text style={styles.preferenceLabel}>Daily Affirmations</Text>
+                <Text style={styles.preferenceDescription}>
+                  Receive daily motivational quotes
+                </Text>
+              </View>
+              <Switch
+                value={dailyAffirmations}
+                onValueChange={setDailyAffirmations}
+                trackColor={{ false: '#D1D1D1', true: '#F5A962' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            <View style={styles.preferenceItem}>
+              <View style={styles.preferenceInfo}>
+                <Text style={styles.preferenceLabel}>Dark Mode</Text>
+                <Text style={styles.preferenceDescription}>
+                  Enable dark theme for the app
+                </Text>
+              </View>
+              <Switch
+                value={isDarkMode}
+                onValueChange={toggleDarkMode}
+                trackColor={{ false: '#D1D1D1', true: '#F5A962' }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
           </Card.Content>
         </Card>
 
@@ -169,6 +208,30 @@ const styles = StyleSheet.create({
   buttonContent: {
     paddingVertical: spacing.xs,
     justifyContent: 'flex-start',
+  },
+  preferenceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  preferenceInfo: {
+    flex: 1,
+    marginRight: spacing.md,
+  },
+  preferenceLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000000',
+    marginBottom: 4,
+    letterSpacing: 0.2,
+  },
+  preferenceDescription: {
+    fontSize: 13,
+    color: '#666666',
+    letterSpacing: 0.1,
   },
   logoutButton: {
     marginHorizontal: spacing.lg,

@@ -52,19 +52,20 @@ const CounsellorAppointmentsScreen = ({ navigation }) => {
       ? 'Today'
       : appointmentDate.toDateString() === new Date(Date.now() + 86400000).toDateString()
         ? 'Tomorrow'
-        : appointmentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        : appointmentDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
           <Avatar.Image
-            size={48}
-            source={{ uri: item.student?.avatar || 'https://via.placeholder.com/48' }}
+            size={56}
+            source={{ uri: item.student?.avatar || 'https://via.placeholder.com/56' }}
             style={styles.avatar}
           />
           <View style={styles.headerInfo}>
+            <Text style={styles.studentLabel}>Student ID:</Text>
             <Text style={styles.studentId}>
-              Student ID: {item.student?.studentId || item.student?.anonymousUsername || '#CW876'}
+              {item.student?.studentId || item.student?.anonymousUsername || '#CW876'}
             </Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
@@ -72,12 +73,14 @@ const CounsellorAppointmentsScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <Text style={styles.dateText}>Date: {dateLabel}, {appointmentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</Text>
-        <Text style={styles.timeText}>Time: {item.time || '10:00 AM - 11:00 AM'}</Text>
+        <View style={styles.divider} />
+
+        <Text style={styles.infoText}>Date: {dateLabel}, {appointmentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</Text>
+        <Text style={styles.infoText}>Time: {item.time || '10:00 AM - 11:00 AM'}</Text>
 
         <TouchableOpacity
           style={styles.startButton}
-          onPress={() => navigation.navigate('SessionDetails', { appointmentId: item._id })}
+          onPress={() => navigation.navigate('QRScanner', { mode: 'checkin', appointmentId: item._id })}
         >
           <Text style={styles.startButtonText}>Start Session</Text>
         </TouchableOpacity>
@@ -183,47 +186,56 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   avatar: {
-    marginRight: 12,
+    marginRight: 16,
   },
   headerInfo: {
     flex: 1,
   },
-  studentId: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000000',
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  dateText: {
+  studentLabel: {
     fontSize: 14,
     color: '#666666',
     marginBottom: 4,
   },
-  timeText: {
-    fontSize: 14,
-    color: '#666666',
+  studentId: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000000',
+    letterSpacing: 0.5,
+  },
+  statusBadge: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  statusText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
     marginBottom: 16,
+  },
+  infoText: {
+    fontSize: 15,
+    color: '#666666',
+    marginBottom: 8,
+    letterSpacing: 0.15,
   },
   startButton: {
     backgroundColor: '#F5A962',
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: 24,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 8,
   },
   startButtonText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: '#FFFFFF',
+    letterSpacing: 0.25,
   },
   emptyContainer: {
     alignItems: 'center',
